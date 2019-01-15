@@ -37,6 +37,23 @@ if (!empty($_POST)){
     $file_name = $_FILES['input_img_name']['name'];
     if(!empty($file_name)){
         //ファイルの処理
+
+        //拡張子チェックの流れ
+        //1.画像ファイルの拡張子を取得
+        //2.大文字は小文字に変換
+        //3.jpg,png,gifと比較する
+        //4.いずれも当てはまらない場合はエラー
+
+        //substr(文字列，何文字目から取得か指定)
+        $file_type = substr($file_name, -3);
+
+        //strtolower(小文字にしたい文字列)
+        $file_type = strtolower($file_type);
+
+        if ($file_type != 'jpg' && $file_type != 'png' && $file_type != 'gif') {
+            $errors['img_name'] = 'type';
+        }
+
     }else {
         $errors['img_name'] = 'blank';
     }
@@ -96,7 +113,6 @@ if (!empty($_POST)){
                         <?php if (isset($errors['password']) && $errors['password'] == 'length'):?>
                             <p class="text-danger">パスワードは４〜16文字で入力ししてください</p>
                         <?php endif; ?>
-
                     </div>
                     <div class="form-group">
                         <label for="img_name">プロフィール画像</label>
@@ -104,6 +120,9 @@ if (!empty($_POST)){
                         <?php if(isset($errors['img_name']) && $errors['img_name'] == 'blank'):?>
                             <p class="text-danger">画像を選択してください</p>
                         <?php endif;?>
+                        <?php if (isset($errors['img_name']) && $errors['img_name'] == 'type'): ?>
+                            <p class="text-danger">拡張子がjpg,png,gifの画像を選択してください</p>
+                        <?php endif; ?>
                     </div>
                     <input type="submit" class="btn btn-default" value="確認">
                     <span style="float: right; padding-top: 6px;">ログインは
