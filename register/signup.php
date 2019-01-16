@@ -1,4 +1,8 @@
 <?php
+session_start();
+//セッションを利用するための必須ルール
+//PHPファイルの先頭に書くこと
+
 //空チェック
 //1.エラーだった場合に何のエラーかを保持する$errorsを定義
 //2.送信されたデータと空文字を比較
@@ -56,6 +60,38 @@ if (!empty($_POST)){
 
     }else {
         $errors['img_name'] = 'blank';
+    }
+
+    //エラーがなかった場合
+    if (empty($errors)) {
+        //ファイルアップロードの処理
+        //1.フォルダの権限設定
+        //2.一意のファイル名生成
+        //3.アップロード
+
+        //一意のファイル名生成
+        //現在の日時を取得  年月日時分秒まで取得
+        $date_str = date('YmdHis');  //YmdHisは取得フォーマット
+        $submit_file_name = $date_str . $file_name;
+
+        //画像のアップロード
+        //move_uploade_file(ファイル，アップロード先)
+        //../は一個上のフォルダに戻る、という意味
+        move_uploaded_file($_FILES['input_img_name']['tmp_name'],'../user_profile_img/' . $submit_file_name);//move_uploade_fileはアップロード
+
+        //$_SESSION
+        //セッションは各サーバーの簡易的な保管庫
+        //連想配列形式で値を保持する
+        $_SESSION['49_LearnSNS']['name'] = $_POST['input_name'];
+        $_SESSION['49_LearnSNS']['email'] = $_POST['input_email'];
+        $_SESSION['49_LearnSNS']['password'] = $_POST['input_password'];
+        $_SESSION['49_LearnSNS']['img_name'] = $submit_file_name;
+
+        //check.phpへの移動
+        //header('Location: 移動先')
+        header('Location: check.php');
+        exit();
+
     }
 }
 
