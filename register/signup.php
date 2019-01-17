@@ -57,6 +57,9 @@ if (!empty($_POST)){
         if ($file_type != 'jpg' && $file_type != 'png' && $file_type != 'gif') {
             $errors['img_name'] = 'type';
         }
+        // if (!($file_type == 'jpg' || $file_type == 'png' || $file_type == 'gif')) {
+        //     $errors['img_name'] = 'type';
+        // }  同じ意味
 
     }else {
         $errors['img_name'] = 'blank';

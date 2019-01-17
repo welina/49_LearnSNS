@@ -6,6 +6,10 @@ echo '<pre>';
 var_dump($_SESSION);
 echo '</pre>';
 
+$name = $_SESSION['49_LearnSNS']['name'] ;
+$email = $_SESSION['49_LearnSNS']['email'] ;
+$password = $_SESSION['49_LearnSNS']['password'] ;
+$img_name = $_SESSION['49_LearnSNS']['img_name'] ;
 
 ?>
 <!DOCTYPE html>
@@ -23,23 +27,23 @@ echo '</pre>';
                 <h2 class="text-center content_header">アカウント情報確認</h2>
                 <div class="row">
                     <div class="col-xs-4">
-                        <img src="../user_profile_img/misae.png" class="img-responsive img-thumbnail">
+                        <img src="../user_profile_img/<?php echo htmlspecialchars($img_name);?>" class="img-responsive img-thumbnail">
                     </div>
                     <div class="col-xs-8">
                         <div>
                             <span>ユーザー名</span>
-                            <p class="lead">野原みさえ</p>
+                            <p class="lead"><?php echo htmlspecialchars($name); ?></p>
                         </div>
                         <div>
                             <span>メールアドレス</span>
-                            <p class="lead">misae@nohara.com</p>
+                            <p class="lead"><?php echo htmlspecialchars($email); ?></p>
                         </div>
                         <div>
                             <span>パスワード</span>
                             <p class="lead">●●●●●●●●</p>
                         </div>
                         <form method="POST" action="thanks.php">
-                            <a href="signup.php?action=rewrite" class="btn btn-default">&laquo;&nbsp;戻る</a> | 
+                            <a href="signup.php?action=rewrite" class="btn btn-default">&laquo;&nbsp;戻る</a> |
                             <input type="hidden" name="action" value="submit">
                             <input type="submit" class="btn btn-primary" value="ユーザー登録">
                         </form>
