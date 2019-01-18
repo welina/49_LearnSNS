@@ -3,6 +3,9 @@ session_start();
 //セッションを利用するための必須ルール
 //PHPファイルの先頭に書くこと
 
+//1.errorsの定義
+$errors = [];
+
 //check.phpから戻っていきた場合の処理
 // GET送信の場合は$_GETというスーパーグローバル変数が使える
 if (isset($_GET['action']) && $_GET['action'] == 'rewrite') {
@@ -22,8 +25,8 @@ if (isset($_GET['action']) && $_GET['action'] == 'rewrite') {
 //3.一致する場合は$errorsにnameをキーにblankという値を保持
 //4.エラーがある場合エラーメッセージを表示
 
-//1.errorsの定義
-$errors = [];
+$name = '';
+$email = '';
 
 //POSTかどうか
 if (!empty($_POST)){
@@ -113,9 +116,9 @@ if (!empty($_POST)){
 
     }
 }
-echo '<pre>';
-var_dump($_POST);
-echo '</pre>';
+// echo '<pre>';
+// var_dump($_POST);
+// echo '</pre>';
 
 ?>
 <!DOCTYPE html>
@@ -143,7 +146,7 @@ echo '</pre>';
                     <div class="form-group">
                         <label for="name">ユーザー名</label>
                         <!-- inputタグのname属性が$_POSTのキーになる -->
-                        <input type="text" name="input_name" class="form-control" id="name" placeholder="山田 太郎" value="">
+                        <input type="text" name="input_name" class="form-control" id="name" placeholder="山田 太郎" value="<?php echo htmlspecialchars($name); ?>">
                         <!-- isset(連想配列[キー])連想配列にそのキーが設定されているかどうか -->
                         <?php if (isset($errors['name']) && $errors['name'] == 'blank'):?>
                             <p class="text-danger">ユーザー名を入力してください</p>
@@ -152,7 +155,7 @@ echo '</pre>';
                     </div>
                     <div class="form-group">
                         <label for="email">メールアドレス</label>
-                        <input type="email" name="input_email" class="form-control" id="email" placeholder="example@gmail.com" value="">
+                        <input type="email" name="input_email" class="form-control" id="email" placeholder="example@gmail.com" value="<?php echo htmlspecialchars($email); ?>">
 
                         <?php if (isset($errors['email']) && $errors['email'] == 'blank'):?>
                             <P class="text-danger">メールアドレスを入力してください</P>
@@ -170,6 +173,10 @@ echo '</pre>';
                         <?php if (isset($errors['password']) && $errors['password'] == 'length'):?>
                             <p class="text-danger">パスワードは４〜16文字で入力ししてください</p>
                         <?php endif; ?>
+
+                        <?php if(!empty($errors) && isset($errors['rewrite'])):?>
+                            <P class="text-danger">パスワードを再度入力してください</P>
+                        <?php endif;?>
                     </div>
                     <div class="form-group">
                         <label for="img_name">プロフィール画像</label>
