@@ -34,7 +34,7 @@ if (!empty($_POST)){
         if (password_verify($password, $record['password'])){
             //認証成功
             //3.セッションにユーザーのIDを格納
-            $SESSION['49_LearnSNS']['id'] = $record['id'];
+            $_SESSION['49_LearnSNS']['id'] = $record['id'];
 
             //4.タイムライン画面に遷移
             header('Location: timeline.php');
