@@ -2,6 +2,13 @@
 session_start();
 require('dbconnect.php');
 
+//サインインしていなければsignin.phpへ強制遷移
+if (!isset($_SESSION['49_LearnSNS']['id'])) {
+    //signin.phpへ強制遷移
+    header('Location: signin.php');
+    exit();
+}
+
 $sql = 'SELECT * FROM `users` WHERE `id` = ?';
 $data = [$_SESSION['49_LearnSNS']['id']];
 $stmt = $dbh->prepare($sql);
@@ -24,8 +31,8 @@ echo '</pre>';
 
     includeとrequireの違い
     プロスラムに記述ミスがある場合
-    requireはエラー
-    includeは警告
+    requireはエラー(処理が止まる)
+    includeは警告(処理は続行可能)
 
     includeされたファイル内では呼び出し元の変数が利用できる
 -->
