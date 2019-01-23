@@ -2,6 +2,13 @@
 session_start();
 require('dbconnect.php');
 
+//サインインしていなければsignin.phpへ強制遷移
+if (!isset($_SESSION['49_LearnSNS']['id'])) {
+    //signin.phpへ強制遷移
+    header('Location: signin.php');
+    exit();
+}
+
 $sql = 'SELECT * FROM `users` WHERE `id` = ?';
 $data = [$_SESSION['49_LearnSNS']['id']];
 $stmt = $dbh->prepare($sql);
@@ -11,9 +18,31 @@ $stmt->execute($data);
 // インスタンスにのメンバメソッドを呼び出す
 $signin_user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-echo'<pre>';
-var_dump($signin_user);
-echo '</pre>';
+// echo'<pre>';
+// var_dump($signin_user);
+// echo '</pre>';
+
+//エラー内容を入れておく配列定義
+$errors = [];
+
+//投稿ボタンが押されたら
+// = POST送信だったら
+if (!empty($_POST)){
+    //textareaの値を取り出し
+    //$_POSTのキーはtextareaタグのname属性を使う
+    $feed = $_POST['feed'];
+
+    //投稿が空かどうか
+    if ($feed != '') {
+        //投稿処理
+    } else {
+        //エラー
+        //「feed」が「空」というエラーを入れておく
+        $errors['feed'] = 'blank';
+    }
+}
+
+
 
 ?>
 
@@ -24,8 +53,8 @@ echo '</pre>';
 
     includeとrequireの違い
     プロスラムに記述ミスがある場合
-    requireはエラー
-    includeは警告
+    requireはエラー(処理が止まる)
+    includeは警告(処理は続行可能)
 
     includeされたファイル内では呼び出し元の変数が利用できる
 -->
@@ -43,9 +72,21 @@ echo '</pre>';
             </div>
             <div class="col-xs-9">
                 <div class="feed_form thumbnail">
+                    <!-- actionが空の時は自分自身にアクセス -->
                     <form method="POST" action="">
                         <div class="form-group">
+                            <!--
+                            textaraeaは複数行のテキスト
+                            input type="text"は1行 -->
                             <textarea name="feed" class="form-control" rows="3" placeholder="Happy Hacking!" style="font-size: 24px;"></textarea><br>
+
+                            <!--
+                            条件式
+                            ①「feed」にエラーはありますか
+                            ②そのエラー内容は「blank」ですか-->
+                            <?php if(isset($errors['feed']) && $errors['feed'] == 'blank'):?>
+                                <p class="text-danger">投稿データを入力してください</p>
+                            <?php endif;?>
                         </div>
                         <input type="submit" value="投稿する" class="btn btn-primary">
                     </form>
