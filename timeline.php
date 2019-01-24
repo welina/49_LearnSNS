@@ -35,6 +35,19 @@ if (!empty($_POST)){
     //投稿が空かどうか
     if ($feed != '') {
         //投稿処理
+        //INSERT INTO テーブル名(カラム名1，カラム名2，…) VALUES(値1，値2，…);
+        $sql = 'INSERT INTO `feeds` (`feed`, `user_id`, `created`)VALUES(?, ?, NOW())';
+        //?に入る値を列挙
+        $data = [$feed, $signin_user['id']];
+        //実行するSQLを準備
+        $stmt = $dbh->prepare($sql);
+        //SQL実行
+        $stmt->execute($data);
+
+        //投稿しっぱなしになるのを防ぐため
+        header('Location: timeline.php');
+        exit();
+
     } else {
         //エラー
         //「feed」が「空」というエラーを入れておく

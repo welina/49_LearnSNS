@@ -7,7 +7,7 @@ session_start();
 $errors = [];
 
 //check.phpから戻っていきた場合の処理
-// GET送信の場合は$_GETというスーパーグローバル変数が使える
+//GET送信の場合は$_GETというスーパーグローバル変数が使える
 if (isset($_GET['action']) && $_GET['action'] == 'rewrite') {
     //$_POSTに擬似的に値を代入する
     //バリエーションを働かせるため
