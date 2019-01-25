@@ -55,7 +55,27 @@ if (!empty($_POST)){
     }
 }
 
+//投稿情報を全て取得する
+$sql = 'SELECT `f` . * , `u` . `name` , `u` . `img_name` FROM `feeds` AS `f` LEFT JOIN `users` AS `u` ON `f` . `user_id` = `u` . `id` ORDER BY `f` . `created`DESC';
+$stmt = $dbh->prepare($sql);
+$stmt->execute();
 
+//投稿情報を入れておく列挙
+$feeds = [];
+while (true) {
+    //fetchは一行取得して次の行へ進む
+    //取得できた場合は連想配列
+    //取得できない場合はfalse
+    $record = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($record == false) {
+        break;
+    }
+    $feeds[] = $record;
+}
+
+echo'<pre>';
+var_dump($feeds);
+echo'</pre>';
 
 ?>
 
