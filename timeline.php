@@ -73,9 +73,9 @@ while (true) {
     $feeds[] = $record;
 }
 
-echo'<pre>';
-var_dump($feeds);
-echo'</pre>';
+// echo'<pre>';
+// var_dump($feeds);
+// echo'</pre>';
 
 ?>
 
@@ -124,19 +124,24 @@ echo'</pre>';
                         <input type="submit" value="投稿する" class="btn btn-primary">
                     </form>
                 </div>
+
+                <!-- foreach 配列の個数分繰り返し処理が行われる
+                     foreach(配列 as 取り出した変数)
+                     foreach(複数形 as 単数形) -->
+                <?php foreach ($feeds as $feed): ?>
                 <div class="thumbnail">
                     <div class="row">
                         <div class="col-xs-1">
-                            <img src="user_profile_img/misae.png" width="40px">
+                            <img src="user_profile_img/<?php echo $feed['img_name']; ?>" width="40px">
                         </div>
                         <div class="col-xs-11">
-                            <a href="profile.php" style="color: #7f7f7f;">野原みさえ</a>
-                            2018-10-14
+                            <a href="profile.php" style="color: #7f7f7f;"><?php echo $feed['name']; ?></a>
+                            <?php echo $feed['created']; ?>
                         </div>
                     </div>
                     <div class="row feed_content">
                         <div class="col-xs-12">
-                            <span style="font-size: 24px;">LearnSNSの開発頑張ろう！</span>
+                            <span style="font-size: 24px;"><?php echo $feed['feed']; ?></span>
                         </div>
                     </div>
                     <div class="row feed_sub">
@@ -152,6 +157,7 @@ echo'</pre>';
                         <?php include('comment_view.php'); ?>
                     </div>
                 </div>
+                <?php endforeach; ?>
                 <div aria-label="Page navigation">
                     <ul class="pager">
                         <li class="previous disabled"><a><span aria-hidden="true">&larr;</span> Newer</a></li>
