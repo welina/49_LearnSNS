@@ -28,6 +28,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'rewrite') {
 $name = '';
 $email = '';
 
+
 //POSTかどうか
 if (!empty($_POST)){
     //2.空文字かどうか
@@ -48,7 +49,7 @@ if (!empty($_POST)){
     if ($password == ''){
         //3.ユーザー名が空である、という情報を保持
         $errors['password'] = 'blank';
-    }elseif ($count < 4 || 16 < $count) {
+    }elseif ($count < 4 || 16< $count) {
         // ||演算子を使って４文字未満または16文字より多い場合はエラー
         $errors['password'] = 'length';
     }
@@ -84,6 +85,8 @@ if (!empty($_POST)){
         $errors['img_name'] = 'blank';
     }
 
+
+
     //エラーがなかった場合
     if (empty($errors)) {
         //ファイルアップロードの処理
@@ -116,9 +119,7 @@ if (!empty($_POST)){
 
     }
 }
-// echo '<pre>';
-// var_dump($_POST);
-// echo '</pre>';
+
 
 ?>
 <!DOCTYPE html>
@@ -145,42 +146,48 @@ if (!empty($_POST)){
                 <form method="POST" action="signup.php" enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="name">ユーザー名</label>
-                        <input type="text" name="input_name" class="form-control" id="name" placeholder="山田 太郎"
-                            value="<?php echo htmlspecialchars($name); ?>">
-                        <?php if(isset($errors['name']) && $errors['name'] == 'blank'): ?>
-                          <p class="text-danger">ユーザー名を入力してください</p>
+                        <!-- inputタグのname属性が$_POSTのキーになる -->
+                        <input type="text" name="input_name" class="form-control" id="name" placeholder="山田 太郎" value="<?php echo htmlspecialchars($name); ?>">
+                        <!-- isset(連想配列[キー])連想配列にそのキーが設定されているかどうか -->
+                        <?php if (isset($errors['name']) && $errors['name'] == 'blank'):?>
+                            <p class="text-danger">ユーザー名を入力してください</p>
                         <?php endif; ?>
 
                     </div>
                     <div class="form-group">
                         <label for="email">メールアドレス</label>
-                        <input type="email" name="input_email" class="form-control" id="email" placeholder="example@gmail.com"
-                            value="<?php echo htmlspecialchars($email); ?>">
-                        <?php if(isset($errors['email']) && $errors['email'] == 'blank'): ?>
-                          <p class="text-danger">メールアドレスを入力してください</p>
+                        <input type="email" name="input_email" class="form-control" id="email" placeholder="example@gmail.com" value="<?php echo htmlspecialchars($email); ?>">
+
+                        <?php if (isset($errors['email']) && $errors['email'] == 'blank'):?>
+                            <P class="text-danger">メールアドレスを入力してください</P>
                         <?php endif; ?>
+
                     </div>
                     <div class="form-group">
                         <label for="password">パスワード</label>
                         <input type="password" name="input_password" class="form-control" id="password" placeholder="4 ~ 16文字のパスワード">
-                        <?php if(isset($errors['password']) && $errors['password'] == 'blank'): ?>
-                          <p class="text-danger">パスワードを入力してください</p>
-                        <?php endif; ?>
-                        <?php if(isset($errors['password']) && $errors['password'] == 'length') : ?>
-                          <p class="text-danger">パスワードは4 ~ 16文字で入力してください</p>
+
+                        <?php if (isset($errors['password']) && $errors['password'] == 'blank'):?>
+                            <P class="text-danger">パスワードを入力してください</P>
                         <?php endif; ?>
 
+                        <?php if (isset($errors['password']) && $errors['password'] == 'length'):?>
+                            <p class="text-danger">パスワードは４〜16文字で入力ししてください</p>
+                        <?php endif; ?>
+
+                        <?php if(!empty($errors) && isset($errors['rewrite'])):?>
+                            <P class="text-danger">パスワードを再度入力してください</P>
+                        <?php endif;?>
                     </div>
                     <div class="form-group">
                         <label for="img_name">プロフィール画像</label>
                         <input type="file" name="input_img_name" id="img_name" accept="image/*">
-                        <?php if(isset($errors['img_name']) && $errors['img_name'] == 'blank') : ?>
-                          <p class="text-danger">画像を選択してください</p>
+                        <?php if(isset($errors['img_name']) && $errors['img_name'] == 'blank'):?>
+                            <p class="text-danger">画像を選択してください</p>
+                        <?php endif;?>
+                        <?php if (isset($errors['img_name']) && $errors['img_name'] == 'type'):?>
+                            <p class="text-danger">拡張子がjpg,png,gifの画像を選択してください</p>
                         <?php endif; ?>
-                        <?php if(isset($errors['img_name']) && $errors['img_name'] == 'type') : ?>
-                          <p class="text-danger">拡張子がjpg,png,gifの画像を選択してください</p>
-                        <?php endif; ?>
-
                     </div>
                     <input type="submit" class="btn btn-default" value="確認">
                     <span style="float: right; padding-top: 6px;">ログインは

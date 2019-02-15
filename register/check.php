@@ -25,7 +25,7 @@ if (!empty($_POST)){
     //password_hash
     //文字列を単純に保管するのは危険
     //ハッシュ化という文字列の暗号化を行う
-    $data = [$name,$email,password_hash($password,PASSWORD_DEFAULT),$img_name];
+    $data = [$name,$email,password_hash($password,PASSWORD_DEFAULT),$img_name]; //?に入るものを順番通りに列挙
     $stmt = $dbh->prepare($sql);
     $stmt -> execute($data);
 
