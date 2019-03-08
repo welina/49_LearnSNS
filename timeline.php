@@ -2,6 +2,10 @@
 session_start();
 require('dbconnect.php');
 
+// 一ページあたりの表示件数
+// 定数はファイルの一番上に書くのがベター
+const CONTENT_PER_PAGE = 5;
+
 //サインインしていなければsignin.phpへ強制遷移
 if (!isset($_SESSION['49_LearnSNS']['id'])) {
     //signin.phpへ強制遷移
@@ -56,8 +60,39 @@ if (!empty($_POST)){
     }
 }
 
+// 初期値
+$page = 1;
+if (isset($_GET['page'])){
+    // ページの指定があった場合、指定地で上書き
+    $page = $_GET['page'];
+}
+
+// -1などの不正な値を渡された時の対策
+$page = max($page, 1);
+
+$sql_count = 'SELECT COUNT(*) AS `cnt` FROM `feeds`';
+$stmt_count = $dbh->prepare($sql_count);
+$stmt_count->execute();
+
+$record_count = $stmt_count->fetch(PDO::FETCH_ASSOC);
+
+// 最後のページが何ページになるのか算出
+// 最後のページ = (取得したページ数 ÷ 1ページあたりの表示件数)の切り上げ
+$last_page = ceil($record_count['cnt'] / CONTENT_PER_PAGE);
+
+// 最後のページより大きい値を渡された時の対策
+$page = min($page, $last_page);
+
+// スキップするレコード数を算出
+// スキップするレコード数 = (指定ページ -1) * 表示件数
+$start = ($page - 1) * CONTENT_PER_PAGE;
+
+
+
 //投稿情報を全て取得する
-$sql = 'SELECT `f` . * , `u` . `name` , `u` . `img_name` FROM `feeds` AS `f` LEFT JOIN `users` AS `u` ON `f` . `user_id` = `u` . `id` ORDER BY `f` . `created`DESC';
+$sql = 'SELECT `f` . * , `u` . `name` , `u` . `img_name` FROM `feeds` AS `f`
+        LEFT JOIN `users` AS `u` ON `f` . `user_id` = `u` . `id` ORDER BY `f` . `created`DESC
+        LIMIT ' . CONTENT_PER_PAGE . ' OFFSET ' . $start;
 $stmt = $dbh->prepare($sql);
 $stmt->execute();
 
@@ -71,6 +106,22 @@ while (true) {
     if ($record == false) {
         break;
     }
+    // 各投稿に対するコメントを取得
+    $comment_sql = 'SELECT `c`.*, `u`.`name`,`u`.`img_name`
+                 FROM `comments` AS `C` LEFT JOIN `users` AS `u` ON `c`.`user_id` = `u`.`id` WHERE `feed_id` = ?';
+    $comment_data = [$record['id']];
+    $comment_stmt = $dbh->prepare($comment_sql);
+    $comment_stmt->execute($comment_data);
+
+    $comments = [];
+    while (true) {
+        $comment_record = $comment_stmt->fetch(PDO::FETCH_ASSOC);
+        // if文の処理が一行の場合{}を省略できる
+        if ($comment_record == false)break;
+        $comments[] = $comment_record;
+    }
+    $record['comments'] = $comments;
+
     // 各投稿がいいね済みかどうか
     $like_flg_sql = 'SELECT * FROM `likes` WHERE `user_id` = ? AND `feed_id` = ?';
     $like_flg_data = [$signin_user['id'],$record['id']];
@@ -81,6 +132,26 @@ while (true) {
     // 三項演算子
     // 条件 ? 真の時の値 : 偽の時の値
     $record['is_liked'] = $is_liked ? true : false;
+
+    // 投稿に対して何件いいねされているか
+    // COUNT(カラム) 件数を取得
+    // *は何かしら値があれば、の意味
+    // SQLの関数
+    $like_sql = 'SELECT COUNT(*) AS `like_cnt` FROM `likes` WHERE `feed_id` = ?';
+    $like_data = [$record['id']];
+    $like_stmt = $dbh->prepare($like_sql);
+    $like_stmt->execute($like_data);
+    $like = $like_stmt->fetch(PDO::FETCH_ASSOC);
+    $record['like_cnt'] = $like['like_cnt'];
+
+    // コメント数取得
+    // $comment_cnt_sql = 'SELECT COUNT(*) AS `comment_cnt` FROM `comments` WHERE `feed_id` = ?';
+    // $comment_cnt_data = [$record['id']];
+    // $comment_cnt_stmt = $dbh->prepare($comment_cnt_sql);
+    // $comment_cnt_stmt->execute($comment_cnt_data);
+    // $comment_cnt_result = $comment_cnt_stmt->fetch(PDO::FETCH_ASSOC);
+    // $record['comment_cnt'] = $comment_cnt_result['comment_cnt'];
+
 
     $feeds[] = $record;
 }
@@ -169,9 +240,9 @@ while (true) {
                                 <button class="btn btn-default js-like"><span>いいね！</span></button>
                             <?php endif; ?>
                             いいね数：
-                            <span class="like-count">10</span>
-                            <a href="#collapseComment" data-toggle="collapse" aria-expanded="false"><span>コメントする</span></a>
-                            <span class="comment-count">コメント数：5</span>
+                            <span class="like-count"><?php echo $feed['like_cnt']?></span>
+                            <a href="#collapseComment<?php echo $feed['id'] ;?>" data-toggle="collapse" aria-expanded="false"><span>コメントする</span></a>
+                            <span class="comment-count">コメント数：<?php echo count($feed['comments']); ?></span>
 
                             <?php if ($feed['user_id'] == $signin_user['id']): ?>
                             <a href="edit.php?feed_id=<?php echo $feed['id']; ?>" class="btn btn-success btn-xs">編集</a>
@@ -185,8 +256,19 @@ while (true) {
                 <?php endforeach; ?>
                 <div aria-label="Page navigation">
                     <ul class="pager">
-                        <li class="previous disabled"><a><span aria-hidden="true">&larr;</span> Newer</a></li>
-                        <li class="next disabled"><a>Older <span aria-hidden="true">&rarr;</span></a></li>
+                        <?php if($page == 1): ?>
+                            <li class="previous disabled"><a><span aria-hidden="true">&larr;</span> Newer</a></li>
+                        <?php else: ?>
+                            <!-- GET送信のパラメータ URL ? キー = バリュー  -->
+                            <li class="previous"><a href="timeline.php?page=<?php echo $page - 1; ?>"><span aria-hidden="true">&larr;</span> Newer</a></li>
+                        <?php endif;?>
+                            <!-- 押せない時 -->
+                        <?php if($page == $last_page):?>
+                            <li class="next disabled"><a>Older <span aria-hidden="true">&rarr;</span></a></li>
+                        <?php else: ?>
+                            <!-- 押せる時 -->
+                            <li class="next"><a href="timeline.php?page=<?php echo $page + 1; ?>">Older <span aria-hidden="true">&rarr;</span></a></li>
+                        <?php endif;?>
                     </ul>
                 </div>
             </div>

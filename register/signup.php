@@ -146,8 +146,8 @@ if (!empty($_POST)){
                 <form method="POST" action="signup.php" enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="name">ユーザー名</label>
+                        <input type="name" name="input_name" class="form-control" id="name" placeholder="山田 太郎">
                         <!-- inputタグのname属性が$_POSTのキーになる -->
-                        <input type="text" name="input_name" class="form-control" id="name" placeholder="山田 太郎" value="<?php echo htmlspecialchars($name); ?>">
                         <!-- isset(連想配列[キー])連想配列にそのキーが設定されているかどうか -->
                         <?php if (isset($errors['name']) && $errors['name'] == 'blank'):?>
                             <p class="text-danger">ユーザー名を入力してください</p>
